@@ -22,13 +22,64 @@ This project implements the classic 4x12 CliffWalking task from scratch using ta
 
 ## Update Equations
 
+For both methods, the tabular update has the same general form:
+
+$$
+Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \, \delta_t
+$$
+
+where the temporal-difference error is:
+
+$$
+\delta_t = \text{target}_t - Q(s_t, a_t)
+$$
+
+Here:
+
+- $s_t$: current state
+- $a_t$: action taken in the current state
+- $r_{t+1}$: reward received after taking $a_t$
+- $s_{t+1}$: next state
+- $\alpha$: learning rate
+- $\gamma$: discount factor
+
 ### SARSA
 
-`Q(s,a) <- Q(s,a) + alpha * (r + gamma * Q(s',a') - Q(s,a))`
+SARSA is an on-policy method because it updates using the action actually chosen next by the current policy.
+
+$$
+\text{target}_t^{\text{SARSA}} = r_{t+1} + \gamma Q(s_{t+1}, a_{t+1})
+$$
+
+$$
+\delta_t^{\text{SARSA}} = r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t)
+$$
+
+$$
+Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left( r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t) \right)
+$$
 
 ### Q-learning
 
-`Q(s,a) <- Q(s,a) + alpha * (r + gamma * max_a' Q(s',a') - Q(s,a))`
+Q-learning is an off-policy method because it updates toward the best possible next action value, regardless of the action actually taken during exploration.
+
+$$
+\text{target}_t^{\text{Q-learning}} = r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a')
+$$
+
+$$
+\delta_t^{\text{Q-learning}} = r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t)
+$$
+
+$$
+Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left( r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t) \right)
+$$
+
+For terminal states, there is no future value term, so the target becomes:
+
+$$
+\text{target}_t = r_{t+1}
+$$
 
 ## Expected Behavior
 
@@ -45,27 +96,12 @@ SARSA usually learns a safer path that stays farther away from the cliff because
 - `utils.py`: plotting, metrics, and policy formatting helpers
 - `requirements.txt`: exported dependency list
 
-## Setup With uv
-
-```bash
-uv sync
-```
-
-## Train
+## Train & Evaluate
 
 ```bash
 uv run train.py --algo sarsa
 uv run train.py --algo qlearning
-```
-
-Example with custom output directories:
-
-```bash
-uv run train.py --algo sarsa --output-dir outputs/sarsa_run
-uv run train.py --algo qlearning --output-dir outputs/qlearning_run
-```
-
-## Evaluate
+``` 
 
 ```bash
 uv run eval.py --q-table outputs/sarsa/q_table.npy
