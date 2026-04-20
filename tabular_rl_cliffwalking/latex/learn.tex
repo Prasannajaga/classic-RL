@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+
+\title{Classic Reinforcement Learning: Core Mathematics}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Overview}
+
+Classic reinforcement learning (RL) is about an agent interacting with an environment to maximize long-term reward.
+
+At time step $t$:
+\begin{itemize}
+    \item the agent observes a state $s_t$
+    \item takes an action $a_t$
+    \item receives a reward $r_{t+1}$
+    \item transitions to the next state $s_{t+1}$
+\end{itemize}
+
+The goal is to learn a policy that maximizes expected cumulative reward.
+
+\section{Markov Decision Process}
+
+Classic RL is usually modeled as a Markov Decision Process (MDP):
+
+\[
+(\mathcal{S}, \mathcal{A}, P, R, \gamma)
+\]
+
+where:
+\begin{itemize}
+    \item $\mathcal{S}$ is the set of states
+    \item $\mathcal{A}$ is the set of actions
+    \item $P(s' \mid s,a)$ is the transition probability
+    \item $R(s,a)$ or $R(s,a,s')$ is the reward function
+    \item $\gamma \in [0,1]$ is the discount factor
+\end{itemize}
+
+The Markov property means the future depends only on the current state and action.
+
+\section{Return}
+
+The return is the discounted sum of future rewards:
+
+\[
+G_t = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1}
+\]
+
+where:
+\begin{itemize}
+    \item $G_t$ is the return starting at time $t$
+    \item $r_{t+k+1}$ is the reward received $k+1$ steps later
+    \item $\gamma$ is the discount factor
+\end{itemize}
+
+Why it matters:
+\begin{itemize}
+    \item if $\gamma = 0$, the agent cares only about immediate reward
+    \item if $\gamma \approx 1$, the agent cares more about long-term reward
+\end{itemize}
+
+\section{Policy}
+
+A policy tells the agent what action to take.
+
+For a stochastic policy:
+
+\[
+\pi(a \mid s) = \Pr(a_t = a \mid s_t = s)
+\]
+
+This means $\pi(a \mid s)$ is the probability of taking action $a$ in state $s$.
+
+For a deterministic policy:
+
+\[
+a = \pi(s)
+\]
+
+This means the policy maps each state directly to one action.
+
+\section{Objective Function}
+
+The goal of RL is to maximize expected return:
+
+\[
+J(\pi) = \mathbb{E}_{\pi}[G_t]
+\]
+
+A more expanded form is:
+
+\[
+J(\pi) = \mathbb{E}_{\pi}\left[\sum_{t=0}^{\infty} \gamma^t r_{t+1}\right]
+\]
+
+This is the quantity the agent tries to optimize.
+
+\section{State-Value Function}
+
+The state-value function measures how good a state is under policy $\pi$:
+
+\[
+V^{\pi}(s) = \mathbb{E}_{\pi}[G_t \mid s_t = s]
+\]
+
+This is the expected return when starting from state $s$ and following policy $\pi$.
+
+\section{Action-Value Function}
+
+The action-value function, or Q-function, measures how good an action is in a state:
+
+\[
+Q^{\pi}(s,a) = \mathbb{E}_{\pi}[G_t \mid s_t = s, a_t = a]
+\]
+
+This is the expected return when starting in state $s$, taking action $a$, and then following policy $\pi$.
+
+\section{Bellman Expectation Equation}
+
+For the state-value function:
+
+\[
+V^{\pi}(s) = \sum_{a} \pi(a \mid s) \sum_{s'} P(s' \mid s,a)
+\left[ R(s,a,s') + \gamma V^{\pi}(s') \right]
+\]
+
+This means:
+\begin{itemize}
+    \item value of the current state
+    \item equals expected immediate reward
+    \item plus discounted value of the next state
+\end{itemize}
+
+For the action-value function:
+
+\[
+Q^{\pi}(s,a) = \sum_{s'} P(s' \mid s,a)
+\left[ R(s,a,s') + \gamma \sum_{a'} \pi(a' \mid s') Q^{\pi}(s',a') \right]
+\]
+
+This is the same recursive idea at the state-action level.
+
+\section{Optimal Value Functions}
+
+The optimal state-value function is:
+
+\[
+V^*(s) = \max_{\pi} V^{\pi}(s)
+\]
+
+The optimal action-value function is:
+
+\[
+Q^*(s,a) = \max_{\pi} Q^{\pi}(s,a)
+\]
+
+These represent the best possible long-term reward.
+
+\section{Bellman Optimality Equation}
+
+For the optimal state-value function:
+
+\[
+V^*(s) = \max_{a} \sum_{s'} P(s' \mid s,a)
+\left[ R(s,a,s') + \gamma V^*(s') \right]
+\]
+
+For the optimal action-value function:
+
+\[
+Q^*(s,a) = \sum_{s'} P(s' \mid s,a)
+\left[ R(s,a,s') + \gamma \max_{a'} Q^*(s',a') \right]
+\]
+
+These equations are central to value-based RL methods.
+
+\section{Advantage Function}
+
+The advantage function tells whether an action is better than average in a given state:
+
+\[
+A^{\pi}(s,a) = Q^{\pi}(s,a) - V^{\pi}(s)
+\]
+
+Interpretation:
+\begin{itemize}
+    \item if $A^{\pi}(s,a) > 0$, the action is better than average
+    \item if $A^{\pi}(s,a) < 0$, the action is worse than average
+\end{itemize}
+
+\section{Temporal Difference Error}
+
+The temporal difference (TD) error is:
+
+\[
+\delta_t = r_{t+1} + \gamma V(s_{t+1}) - V(s_t)
+\]
+
+This measures the gap between:
+\begin{itemize}
+    \item the current estimate $V(s_t)$
+    \item a one-step improved target
+\end{itemize}
+
+\section{Q-Learning Update Rule}
+
+One of the most important RL update rules is Q-learning:
+
+\[
+Q(s_t,a_t) \leftarrow Q(s_t,a_t) +
+\alpha \left[
+r_{t+1} + \gamma \max_{a'} Q(s_{t+1},a') - Q(s_t,a_t)
+\right]
+\]
+
+where:
+\begin{itemize}
+    \item $\alpha$ is the learning rate
+    \item $r_{t+1}$ is the immediate reward
+    \item $\gamma$ is the discount factor
+    \item $\max_{a'} Q(s_{t+1},a')$ is the estimated best future value
+\end{itemize}
+
+Core idea:
+\begin{itemize}
+    \item update the current Q-value
+    \item toward reward plus best future estimate
+\end{itemize}
+
+\section{Policy Gradient}
+
+A basic policy gradient formula is:
+
+\[
+\nabla_{\theta} J(\pi_{\theta}) =
+\mathbb{E}_{\pi_{\theta}}
+\left[
+\nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \, G_t
+\right]
+\]
+
+where:
+\begin{itemize}
+    \item $\theta$ are the policy parameters
+    \item the gradient increases probability of actions that led to high return
+\end{itemize}
+
+\section{Exploration vs. Exploitation}
+
+A common strategy is $\epsilon$-greedy:
+
+\[
+\pi(a \mid s) =
+\begin{cases}
+1 - \epsilon + \frac{\epsilon}{|\mathcal{A}|}, & \text{if } a = \arg\max_{a'} Q(s,a') \\
+\frac{\epsilon}{|\mathcal{A}|}, & \text{otherwise}
+\end{cases}
+\]
+
+This means:
+\begin{itemize}
+    \item most of the time, choose the best-known action
+    \item sometimes, explore a random action
+\end{itemize}
+
+\section{Compact Summary}
+
+Classic RL is about maximizing expected discounted reward through interaction with an environment.
+
+The core quantity is the return:
+
+\[
+G_t = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1}
+\]
+
+From this we define:
+
+\[
+V^{\pi}(s) = \mathbb{E}_{\pi}[G_t \mid s_t = s]
+\]
+
+\[
+Q^{\pi}(s,a) = \mathbb{E}_{\pi}[G_t \mid s_t = s, a_t = a]
+\]
+
+Bellman equations make RL recursive: value now equals immediate reward plus discounted future value.
+
+\end{document}
