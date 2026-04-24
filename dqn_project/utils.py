@@ -16,8 +16,15 @@ import numpy as np
 import torch
 from gymnasium.spaces import Box, Discrete
 
+from dqn_project.custom_envs import SimpleCartPoleEnv, SimpleLunarLanderEnv
+
 if TYPE_CHECKING:
     from dqn_project.agent import DQNAgent
+
+CUSTOM_ENV_FACTORIES = {
+    "SimpleCartPole-v0": SimpleCartPoleEnv,
+    "SimpleLunarLander-v0": SimpleLunarLanderEnv,
+}
 
 
 @dataclass(slots=True)
@@ -65,13 +72,16 @@ def resolve_device(device_name: str) -> torch.device:
 def make_env(env_id: str, seed: int, render_mode: str | None = None) -> gym.Env:
     """Construct and seed a Gymnasium environment."""
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            category=UserWarning,
-            message="pkg_resources is deprecated as an API.*",
-        )
-        env = gym.make(env_id, render_mode=render_mode)
+    if env_id in CUSTOM_ENV_FACTORIES:
+        env = CUSTOM_ENV_FACTORIES[env_id](render_mode=render_mode)
+    else:
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=UserWarning,
+                message="pkg_resources is deprecated as an API.*",
+            )
+            env = gym.make(env_id, render_mode=render_mode)
     env.action_space.seed(seed)
     if hasattr(env.observation_space, "seed"):
         env.observation_space.seed(seed)

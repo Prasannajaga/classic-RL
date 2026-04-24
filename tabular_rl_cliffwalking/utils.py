@@ -26,6 +26,7 @@ ACTION_SYMBOLS: dict[int, str] = {
     2: "↓",
     3: "←",
 }
+GRID_LEFT_PADDING = "   "
 
 
 def ensure_dir(path: Path) -> Path:
@@ -127,5 +128,24 @@ def format_policy_grid(q_table: QTable, env: CliffWalkingEnv) -> str:
             else:
                 state = env.pos_to_state(pos)
                 cells.append(ACTION_SYMBOLS[greedy_action_from_table(q_table, state)])
-        rows.append(" ".join(cells))
+        rows.append(f"{GRID_LEFT_PADDING}{' '.join(cells)}")
+    return "\n".join(rows)
+
+
+def format_board_grid(env: CliffWalkingEnv) -> str:
+    """Render the base CliffWalking board with dots for regular cells."""
+    rows: list[str] = []
+    for row in range(env.nrows):
+        cells: list[str] = []
+        for col in range(env.ncols):
+            pos = (row, col)
+            if pos == env.start:
+                cells.append("S")
+            elif pos == env.goal:
+                cells.append("G")
+            elif pos in env.cliff_cells:
+                cells.append("C")
+            else:
+                cells.append(".")
+        rows.append(f"{GRID_LEFT_PADDING}{' '.join(cells)}")
     return "\n".join(rows)

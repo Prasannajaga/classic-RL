@@ -26,7 +26,7 @@ class DQNConfig:
     gradient_clip_norm: float = 10.0
     seed: int = 42
     device: str = "auto"
-    checkpoint_root: str = "dqn_project/checkpoints"
+    checkpoint_root: str = "output"
     run_name: str | None = None
 
     def validate(self) -> None:
@@ -121,9 +121,45 @@ LUNARLANDER_CONFIG = DQNConfig(
     eval_episodes=10,
 )
 
+SIMPLE_CARTPOLE_CONFIG = DQNConfig(
+    env_id="SimpleCartPole-v0",
+    hidden_dims=(64, 64),
+    gamma=0.99,
+    lr=1e-3,
+    batch_size=64,
+    buffer_size=50_000,
+    min_buffer_size=500,
+    epsilon_start=1.0,
+    epsilon_end=0.05,
+    epsilon_decay_steps=10_000,
+    target_update_freq=250,
+    max_episodes=300,
+    eval_every_episodes=25,
+    eval_episodes=5,
+)
+
+SIMPLE_LUNARLANDER_CONFIG = DQNConfig(
+    env_id="SimpleLunarLander-v0",
+    hidden_dims=(128, 128),
+    gamma=0.99,
+    lr=5e-4,
+    batch_size=128,
+    buffer_size=100_000,
+    min_buffer_size=1_000,
+    epsilon_start=1.0,
+    epsilon_end=0.05,
+    epsilon_decay_steps=50_000,
+    target_update_freq=500,
+    max_episodes=800,
+    eval_every_episodes=50,
+    eval_episodes=10,
+)
+
 DEFAULT_CONFIGS: dict[str, DQNConfig] = {
     CARTPOLE_CONFIG.env_id: CARTPOLE_CONFIG,
     LUNARLANDER_CONFIG.env_id: LUNARLANDER_CONFIG,
+    SIMPLE_CARTPOLE_CONFIG.env_id: SIMPLE_CARTPOLE_CONFIG,
+    SIMPLE_LUNARLANDER_CONFIG.env_id: SIMPLE_LUNARLANDER_CONFIG,
 }
 
 
@@ -140,4 +176,3 @@ def supported_env_ids() -> list[str]:
     """List the environments wired into the project."""
 
     return sorted(DEFAULT_CONFIGS)
-

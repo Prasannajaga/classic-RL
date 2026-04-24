@@ -1,0 +1,17 @@
+
+*.pt
+*.pyc
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*.log
+
+# Generated experiment artifacts
+output/
+dqn_project/checkpoints/
+tabular_rl_cliffwalking/outputs/
+tabular_rl_cliffwalking/sanity/
+tabular_rl_cliffwalking/latex/*.aux
+tabular_rl_cliffwalking/latex/*.fls
+tabular_rl_cliffwalking/latex/*.fdb_latexmk
+tabular_rl_cliffwalking/latex/*.synctex.gz

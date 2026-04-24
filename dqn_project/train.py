@@ -120,9 +120,11 @@ def run_training(config: DQNConfig) -> Path:
             truncated = False
 
             while not (terminated or truncated):
+                # choose action from epsilon greedy 
                 action = agent.select_action(observation)
+                # step enviroment 
                 next_observation, reward, terminated, truncated, _ = env.step(action)
-
+                # store the transition in replay 
                 agent.store(
                     observation=observation,
                     action=action,
@@ -132,6 +134,7 @@ def run_training(config: DQNConfig) -> Path:
                     truncated=truncated,
                 )
 
+                # train step 
                 loss = agent.train_step()
                 if loss is not None:
                     episode_losses.append(loss)

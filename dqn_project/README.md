@@ -20,13 +20,10 @@ The learning loop has four key ideas:
 
 1. `Q-network`
    The online network predicts the current Q-values and is updated by gradient descent.
-
 2. `Replay buffer`
    Instead of learning from consecutive transitions directly, DQN stores transitions and samples random minibatches. This reduces temporal correlation and makes optimization more stable.
-
 3. `Target network`
    A separate frozen copy of the Q-network is used to build the Bellman target. It is hard-updated every fixed number of environment steps.
-
 4. `Epsilon-greedy exploration`
    The agent starts very exploratory and gradually shifts toward greedy action selection as epsilon decays.
 
@@ -50,10 +47,10 @@ target = reward + gamma * (1 - terminated) * next_q
 
 ## Shared Environment Setup
 
-There is already a virtual environment in `tabular_rl_cliffwalking/.venv`. To keep one venv across both projects, activate that same environment and install the extra DQN dependencies into it:
+There is already a shared virtual environment at the repository root in `.venv`. Activate that environment and install the extra DQN dependencies into it:
 
 ```bash
-source tabular_rl_cliffwalking/.venv/bin/activate
+source .venv/bin/activate
 uv pip install torch "gymnasium[classic-control,box2d]" matplotlib numpy
 ```
 
@@ -62,7 +59,7 @@ uv pip install torch "gymnasium[classic-control,box2d]" matplotlib numpy
 ## Train on CartPole
 
 ```bash
-source tabular_rl_cliffwalking/.venv/bin/activate
+source .venv/bin/activate
 python -m dqn_project.train --env-id CartPole-v1
 ```
 
@@ -83,7 +80,7 @@ CartPole defaults:
 ## Train on LunarLander
 
 ```bash
-source tabular_rl_cliffwalking/.venv/bin/activate
+source .venv/bin/activate
 python -m dqn_project.train --env-id LunarLander-v3
 ```
 
@@ -104,7 +101,7 @@ LunarLander defaults:
 ## Evaluate a Checkpoint
 
 ```bash
-source tabular_rl_cliffwalking/.venv/bin/activate
+source .venv/bin/activate
 python -m dqn_project.evaluate --checkpoint dqn_project/checkpoints/cartpole-v1/<run_name>/best.pt --episodes 10
 ```
 
@@ -153,3 +150,26 @@ Each run creates a folder under `dqn_project/checkpoints/<env_name>/<run_name>/`
 ## Extending to Double DQN
 
 `agent.py` isolates bootstrap target computation in `_compute_next_q_values()`. That keeps the current vanilla DQN implementation simple and makes it straightforward to later switch to Double DQN by separating action selection from action evaluation.
+
+```text
+for each episode:
+    reset environment
+    while episode not done:
+        choose action from epsilon-greedy Q-network
+        step environment
+        store transition in replay
+        if replay warm enough and train_freq matches:
+            sample minibatch
+            do Bellman update on Q-network
+            sometimes copy online network -> target network
+    log training metrics
+    sometimes run greedy evaluation
+    sometimes save checkpoints
+
+
+next_observation: new state/observation
+reward: reward from this action
+terminated: True if the actual task ended, e.g. failure/success
+truncated: True if episode stopped because of a limit, usually time limit
+info: extra debug/environment details
+```

@@ -8,7 +8,13 @@ from pathlib import Path
 import numpy as np
 
 from env import CliffWalkingEnv
-from utils import format_policy_grid, greedy_action_from_table, summarize_metrics, validate_q_table_shape
+from utils import (
+    format_board_grid,
+    format_policy_grid,
+    greedy_action_from_table,
+    summarize_metrics,
+    validate_q_table_shape,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -62,6 +68,9 @@ def evaluate(args: argparse.Namespace) -> None:
     print(f"Average steps: {summary['average_steps']:.2f}")
     print(f"Average falls: {summary['average_falls']:.2f}")
     print(f"Success rate: {summary['success_rate']:.2%}")
+    print()
+    print("Board layout:")
+    print(format_board_grid(env))
     print()
     print("Greedy policy:")
     print(format_policy_grid(q_table, env))
