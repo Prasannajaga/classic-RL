@@ -75,7 +75,7 @@ def main() -> None:
         f"Mean Length {np.mean(lengths):.2f}"
     )
 
-
+    
 if __name__ == "__main__":
     main()
 
